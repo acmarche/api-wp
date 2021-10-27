@@ -2,7 +2,6 @@
 
 namespace AcMarche\ApiWp;
 
-
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpClient\HttpOptions;
 use Symfony\Component\HttpFoundation\Response;
@@ -10,22 +9,28 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class ApiClient
 {
-    private HttpClientInterface $httpClient;
+    private ?HttpClientInterface $httpClient = null;
     private string $url;
 
     public function __construct()
     {
-        //Env::loadEnv();
+    }
+
+    public function connect()
+    {
         $this->url = $_ENV['WP_SITE'].'/wp-json/wp/v2';
-        $options   = new HttpOptions();
+        $options = new HttpOptions();
         $options->setAuthBasic($_ENV['WP_USER'], $_ENV['WP_PASSWORD']);
         $this->httpClient = HttpClient::createForBaseUri($this->url, $options->toArray());
     }
 
     public function req()
     {
+        if (!$this->httpClient) {
+            $this->connect();
+        }
         $response = $this->httpClient->request('GET', $this->url.'/posts');
-        $statut   = $response->getStatusCode();
+        $statut = $response->getStatusCode();
         if ($statut === Response::HTTP_OK) {
             $content = $response->getContent();
             var_dump($content);
@@ -40,6 +45,9 @@ class ApiClient
      */
     public function createPost(array $data, ?int $postId = null)
     {
+        if (!$this->httpClient) {
+            $this->connect();
+        }
         $url = $this->url.'/posts';
         if ($postId) {
             $url .= '/'.$postId;
@@ -54,12 +62,13 @@ class ApiClient
         $content = $response->getContent();
 
         dump($content);
-
-
     }
 
     public function createAttachement(array $data, ?int $postId = null)
     {
+        if (!$this->httpClient) {
+            $this->connect();
+        }
         $url = $this->url.'/media';
         if ($postId) {
             $url .= '/'.$postId;
@@ -74,7 +83,5 @@ class ApiClient
         $content = $response->getContent();
 
         dump($content);
-
-
     }
 }
