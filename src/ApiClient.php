@@ -15,8 +15,8 @@ class ApiClient
 
     public function __construct()
     {
-        Env::loadEnv();
-        $this->url = get_site_url().'/wp-json/wp/v2';
+        //Env::loadEnv();
+        $this->url = $_ENV['WP_SITE'].'/wp-json/wp/v2';
         $options   = new HttpOptions();
         $options->setAuthBasic($_ENV['WP_USER'], $_ENV['WP_PASSWORD']);
         $this->httpClient = HttpClient::createForBaseUri($this->url, $options->toArray());
