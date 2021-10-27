@@ -64,7 +64,17 @@ class ApiClient
         dump($content);
     }
 
-    public function createAttachement(array $data, ?int $postId = null)
+    /**
+     * @param string $fileName
+     * @param string $type
+     * @param string $data
+     * @param int|null $postId
+     * @throws \Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface
+     * @throws \Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface
+     * @throws \Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface
+     * @throws \Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
+     */
+    public function createAttachement(string $fileName, string $type, string $data, ?int $postId = null)
     {
         if (!$this->httpClient) {
             $this->connect();
@@ -73,9 +83,20 @@ class ApiClient
         if ($postId) {
             $url .= '/'.$postId;
         }
-        $response = $this->httpClient->request('POST', $url, [
+
+        $headers = [
+            'headers' => [
+                'Content-Disposition' => "attachment; filename=%s".$fileName,
+                'Content-Type' => $type,
+
+            ],
             'body' => $data,
-        ]);
+        ];
+
+        $response = $this->httpClient->request('POST', $url,
+            $headers,
+        );
+
         $httpLogs = $response->getInfo('response_headers');
         dump($httpLogs);
         $statut = $response->getStatusCode();
