@@ -5,6 +5,8 @@ namespace AcMarche\ApiWp;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpClient\HttpOptions;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Mime\Part\DataPart;
+use Symfony\Component\Mime\Part\Multipart\FormDataPart;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class ApiClient
@@ -80,21 +82,34 @@ class ApiClient
             $this->connect();
         }
         $url = $this->url.'/media';
-        if ($postId) {
-            $url .= '/'.$postId;
-        }
+        dump($type);
+        $dataPart = new DataPart($data, $fileName, $type);
+        //$dataPart = DataPart::fromPath($file);
+        dump($dataPart);
+
+        $formFields = [
+            'title' => 'some value2',
+            'alt_text' => 'lilou',
+            'post' => (string)$postId,
+            'file' => $dataPart,
+        ];
+        $formData = new FormDataPart($formFields);
 
         $headers = [
             'headers' => [
                 'Content-Disposition' => "attachment; filename=%s".$fileName,
                 'Content-Type' => $type,
-
             ],
             'body' => $data,
         ];
 
-        $response = $this->httpClient->request('POST', $url,
-            $headers,
+        $response = $this->httpClient->request(
+            'POST',
+            $url,
+            [
+                'headers' => $formData->getPreparedHeaders()->toArray(),
+                'body' => $formData->bodyToIterable(),
+            ]
         );
 
         $httpLogs = $response->getInfo('response_headers');
