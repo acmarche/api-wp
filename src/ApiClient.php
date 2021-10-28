@@ -134,12 +134,9 @@ class ApiClient
         if (!$this->httpClient) {
             $this->connect();
         }
-        $url = $this->url.'/posts';
-        if ($postId) {
-            $url .= '/'.$postId;
-        }
+        $url = $this->url.'/posts/'.$postId;
 
-        $response = $this->httpClient->request('POST', $url, [
+        $response = $this->httpClient->request('DELETE', $url, [
 
         ]);
 
