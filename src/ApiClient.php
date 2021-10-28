@@ -4,10 +4,14 @@ namespace AcMarche\ApiWp;
 
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpClient\HttpOptions;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mime\Part\DataPart;
 use Symfony\Component\Mime\Part\Multipart\FormDataPart;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Contracts\HttpClient\ResponseInterface;
 
 class ApiClient
 {
@@ -26,26 +30,23 @@ class ApiClient
         $this->httpClient = HttpClient::createForBaseUri($this->url, $options->toArray());
     }
 
-    public function req()
+    /**
+     * @throws  \Exception|\Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
+     */
+    public function getPostsByCategory(int $categoryId): ?string
     {
         if (!$this->httpClient) {
             $this->connect();
         }
-        $response = $this->httpClient->request('GET', $this->url.'/posts');
-        $statut = $response->getStatusCode();
-        if ($statut === Response::HTTP_OK) {
-            $content = $response->getContent();
-            var_dump($content);
-        }
+        $response = $this->httpClient->request('GET', $this->url.'/posts/'.$categoryId);
+
+        return $this->getContent($response);
     }
 
     /**
-     * @throws \Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
-     * @throws \Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface
-     * @throws \Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface
-     * @throws \Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface
+     * @throws  \Exception|\Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
      */
-    public function createPost(array $data, ?int $postId = null)
+    public function createPost(array $data, ?int $postId = null): ?string
     {
         if (!$this->httpClient) {
             $this->connect();
@@ -54,38 +55,25 @@ class ApiClient
         if ($postId) {
             $url .= '/'.$postId;
         }
+
         $response = $this->httpClient->request('POST', $url, [
             'body' => $data,
         ]);
-        $httpLogs = $response->getInfo('response_headers');
-        dump($httpLogs);
-        $statut = $response->getStatusCode();
-        dump($statut);
-        $content = $response->getContent();
 
-        dump($content);
+        return $this->getContent($response);
     }
 
+
     /**
-     * @param string $fileName
-     * @param string $type
-     * @param string $data
-     * @param int|null $postId
-     * @throws \Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface
-     * @throws \Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface
-     * @throws \Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface
-     * @throws \Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
+     * @throws \Exception|\Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
      */
-    public function createAttachement(string $fileName, string $type, string $data, ?int $postId = null)
+    public function createMedia(string $fileName, string $type, string $data, ?int $postId = null): ?string
     {
         if (!$this->httpClient) {
             $this->connect();
         }
         $url = $this->url.'/media';
-        dump($type);
         $dataPart = new DataPart($data, $fileName, $type);
-        //$dataPart = DataPart::fromPath($file);
-        dump($dataPart);
 
         $formFields = [
             'title' => 'some value2',
@@ -93,6 +81,7 @@ class ApiClient
             'post' => (string)$postId,
             'file' => $dataPart,
         ];
+
         $formData = new FormDataPart($formFields);
 
         $headers = [
@@ -112,12 +101,20 @@ class ApiClient
             ]
         );
 
-        $httpLogs = $response->getInfo('response_headers');
-        dump($httpLogs);
-        $statut = $response->getStatusCode();
-        dump($statut);
-        $content = $response->getContent();
+        return $this->getContent($response);
+    }
 
-        dump($content);
+    /**
+     * @throws \Exception
+     */
+    public function getContent(ResponseInterface $request): ?string
+    {
+        //$statusCode = $request->getStatusCode();
+
+        try {
+            return $request->getContent();
+        } catch (ClientExceptionInterface | TransportExceptionInterface | ServerExceptionInterface | RedirectionExceptionInterface $e) {
+            throw  new \Exception($e->getMessage());
+        }
     }
 }
