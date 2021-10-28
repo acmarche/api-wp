@@ -139,6 +139,9 @@ class ApiClient
         $response = $this->httpClient->request('DELETE', $url, [
 
         ]);
+     /*   dump($response);
+        dump($response->getInfo());
+        dump($response->getContent(false));*/
 
         return $this->getContent($response);
     }
