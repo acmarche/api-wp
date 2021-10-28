@@ -43,6 +43,9 @@ class ApiClient
         return $this->getContent($response);
     }
 
+    /**
+     * @throws  \Exception|\Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
+     */
     public function getPost(int $postId): ?string
     {
         if (!$this->httpClient) {
@@ -50,6 +53,21 @@ class ApiClient
         }
         $response = $this->httpClient->request('GET', $this->url.'/posts/'.$postId, [
 
+        ]);
+
+        return $this->getContent($response);
+    }
+
+    /**
+     * @throws  \Exception|\Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
+     */
+    public function getCategories(array $include): ?string
+    {
+        if (!$this->httpClient) {
+            $this->connect();
+        }
+        $response = $this->httpClient->request('GET', $this->url.'/categories', [
+            'query' => ['include' => join(',', $include)],
         ]);
 
         return $this->getContent($response);
