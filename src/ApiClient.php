@@ -18,10 +18,6 @@ class ApiClient
     private ?HttpClientInterface $httpClient = null;
     private string $url;
 
-    public function __construct()
-    {
-    }
-
     public function connect()
     {
         $this->url = $_ENV['WP_SITE'].'/wp-json/wp/v2';
@@ -31,14 +27,30 @@ class ApiClient
     }
 
     /**
-     * @throws  \Exception|\Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
+     * @throws \Exception|\Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
      */
     public function getPostsByCategory(int $categoryId): ?string
     {
         if (!$this->httpClient) {
             $this->connect();
         }
-        $response = $this->httpClient->request('GET', $this->url.'/posts/'.$categoryId);
+        $args = ['categories' => $categoryId, 'per_page' => 50, 'orderby' => 'date', 'order' => 'desc'];
+        $response = $this->httpClient->request('GET', $this->url.'/posts', [
+            'query' => $args,
+        ]);
+
+        //dump($response->getInfo());
+        return $this->getContent($response);
+    }
+
+    public function getPost(int $postId): ?string
+    {
+        if (!$this->httpClient) {
+            $this->connect();
+        }
+        $response = $this->httpClient->request('GET', $this->url.'/posts/'.$postId, [
+
+        ]);
 
         return $this->getContent($response);
     }
@@ -63,7 +75,6 @@ class ApiClient
         return $this->getContent($response);
     }
 
-
     /**
      * @throws \Exception|\Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
      */
@@ -76,21 +87,14 @@ class ApiClient
         $dataPart = new DataPart($data, $fileName, $type);
 
         $formFields = [
-            'title' => 'some value2',
-            'alt_text' => 'lilou',
-            'post' => (string)$postId,
+            // 'title' => 'some value2',
+            // 'alt_text' => 'lilou',
             'file' => $dataPart,
         ];
-
+        if ($postId) {
+            $formFields['post'] = (string)$postId;
+        }
         $formData = new FormDataPart($formFields);
-
-        $headers = [
-            'headers' => [
-                'Content-Disposition' => "attachment; filename=%s".$fileName,
-                'Content-Type' => $type,
-            ],
-            'body' => $data,
-        ];
 
         $response = $this->httpClient->request(
             'POST',
@@ -100,6 +104,26 @@ class ApiClient
                 'body' => $formData->bodyToIterable(),
             ]
         );
+
+        return $this->getContent($response);
+    }
+
+    /**
+     * @throws  \Exception|\Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
+     */
+    public function deletePost(int $postId): ?string
+    {
+        if (!$this->httpClient) {
+            $this->connect();
+        }
+        $url = $this->url.'/posts';
+        if ($postId) {
+            $url .= '/'.$postId;
+        }
+
+        $response = $this->httpClient->request('POST', $url, [
+
+        ]);
 
         return $this->getContent($response);
     }
