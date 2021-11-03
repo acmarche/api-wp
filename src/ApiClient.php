@@ -4,6 +4,7 @@ namespace AcMarche\ApiWp;
 
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpClient\HttpOptions;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mime\Part\DataPart;
 use Symfony\Component\Mime\Part\Multipart\FormDataPart;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
@@ -139,9 +140,9 @@ class ApiClient
         $response = $this->httpClient->request('DELETE', $url, [
 
         ]);
-     /*   dump($response);
-        dump($response->getInfo());
-        dump($response->getContent(false));*/
+        /*   dump($response);
+           dump($response->getInfo());
+           dump($response->getContent(false));*/
 
         return $this->getContent($response);
     }
@@ -151,10 +152,9 @@ class ApiClient
      */
     public function getContent(ResponseInterface $request): ?string
     {
-        //$statusCode = $request->getStatusCode();
-
         try {
-            return $request->getContent();
+            $statusCode = $request->getStatusCode();
+            return $request->getContent($statusCode === Response::HTTP_OK);
         } catch (ClientExceptionInterface | TransportExceptionInterface | ServerExceptionInterface | RedirectionExceptionInterface $e) {
             throw  new \Exception($e->getMessage());
         }
