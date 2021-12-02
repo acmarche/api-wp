@@ -2,6 +2,7 @@
 
 namespace AcMarche\ApiWp;
 
+use Exception;
 use Symfony\Component\Dotenv\Dotenv;
 
 class Env
@@ -12,7 +13,7 @@ class Env
         $dir = getcwd();
         try {
             $dotenv->bootEnv($dir.'/.env');
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             echo 'Error load env: '.$exception->getMessage();
         }
     }

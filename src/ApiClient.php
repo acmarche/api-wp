@@ -2,6 +2,7 @@
 
 namespace AcMarche\ApiWp;
 
+use Exception;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpClient\HttpOptions;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,7 +20,7 @@ class ApiClient
     private ?HttpClientInterface $httpClient = null;
     private string $url;
 
-    public function connect()
+    public function connect(): void
     {
         $this->url = $_ENV['WP_SITE'].'/wp-json/wp/v2';
         $options = new HttpOptions();
@@ -28,11 +29,11 @@ class ApiClient
     }
 
     /**
-     * @throws \Exception|\Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
+     * @throws Exception|TransportExceptionInterface
      */
     public function getPostsByCategory(int $categoryId): ?string
     {
-        if (!$this->httpClient) {
+        if ($this->httpClient === null) {
             $this->connect();
         }
         $args = ['categories' => $categoryId, 'per_page' => 50, 'orderby' => 'date', 'order' => 'desc'];
@@ -45,11 +46,11 @@ class ApiClient
     }
 
     /**
-     * @throws \Exception|\Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
+     * @throws Exception|TransportExceptionInterface
      */
     public function getPost(int $postId): ?string
     {
-        if (!$this->httpClient) {
+        if ($this->httpClient === null) {
             $this->connect();
         }
         $response = $this->httpClient->request('GET', $this->url.'/posts/'.$postId, [
@@ -59,11 +60,11 @@ class ApiClient
     }
 
     /**
-     * @throws \Exception|\Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
+     * @throws Exception|TransportExceptionInterface
      */
     public function getCategories(array $include): ?string
     {
-        if (!$this->httpClient) {
+        if ($this->httpClient === null) {
             $this->connect();
         }
         $response = $this->httpClient->request('GET', $this->url.'/categories', [
@@ -74,11 +75,11 @@ class ApiClient
     }
 
     /**
-     * @throws \Exception|\Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
+     * @throws Exception|TransportExceptionInterface
      */
     public function createPost(array $data, ?int $postId = null): ?string
     {
-        if (!$this->httpClient) {
+        if ($this->httpClient === null) {
             $this->connect();
         }
         $url = $this->url.'/posts';
@@ -94,11 +95,11 @@ class ApiClient
     }
 
     /**
-     * @throws \Exception|\Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
+     * @throws Exception|TransportExceptionInterface
      */
     public function createMedia(string $fileName, string $type, string $data, ?int $postId = null): ?string
     {
-        if (!$this->httpClient) {
+        if ($this->httpClient === null) {
             $this->connect();
         }
         $url = $this->url.'/media';
@@ -127,11 +128,11 @@ class ApiClient
     }
 
     /**
-     * @throws \Exception|\Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
+     * @throws Exception|TransportExceptionInterface
      */
     public function deletePost(int $postId): ?string
     {
-        if (!$this->httpClient) {
+        if ($this->httpClient === null) {
             $this->connect();
         }
         $url = $this->url.'/posts/'.$postId;
@@ -146,7 +147,7 @@ class ApiClient
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function getContent(ResponseInterface $request): ?string
     {
@@ -155,7 +156,7 @@ class ApiClient
 
             return $request->getContent(Response::HTTP_OK === $statusCode);
         } catch (ClientExceptionInterface | TransportExceptionInterface | ServerExceptionInterface | RedirectionExceptionInterface $e) {
-            throw  new \Exception($e->getMessage());
+            throw  new Exception($e->getMessage(), $e->getCode(), $e);
         }
     }
 }
