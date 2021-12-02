@@ -9,11 +9,11 @@ class Env
     public static function loadEnv(): void
     {
         $dotenv = new Dotenv();
-        $dir    = getcwd();
+        $dir = getcwd();
         try {
             $dotenv->bootEnv($dir.'/.env');
         } catch (\Exception $exception) {
-            echo "Error load env: ".$exception->getMessage();
+            echo 'Error load env: '.$exception->getMessage();
         }
     }
 }

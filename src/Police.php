@@ -4,5 +4,4 @@ namespace AcMarche\ApiWp;
 
 class Police
 {
-
 }

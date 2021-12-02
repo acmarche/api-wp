@@ -45,7 +45,7 @@ class ApiClient
     }
 
     /**
-     * @throws  \Exception|\Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
+     * @throws \Exception|\Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
      */
     public function getPost(int $postId): ?string
     {
@@ -53,14 +53,13 @@ class ApiClient
             $this->connect();
         }
         $response = $this->httpClient->request('GET', $this->url.'/posts/'.$postId, [
-
         ]);
 
         return $this->getContent($response);
     }
 
     /**
-     * @throws  \Exception|\Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
+     * @throws \Exception|\Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
      */
     public function getCategories(array $include): ?string
     {
@@ -68,14 +67,14 @@ class ApiClient
             $this->connect();
         }
         $response = $this->httpClient->request('GET', $this->url.'/categories', [
-            'query' => ['include' => join(',', $include)],
+            'query' => ['include' => implode(',', $include)],
         ]);
 
         return $this->getContent($response);
     }
 
     /**
-     * @throws  \Exception|\Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
+     * @throws \Exception|\Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
      */
     public function createPost(array $data, ?int $postId = null): ?string
     {
@@ -111,7 +110,7 @@ class ApiClient
             'file' => $dataPart,
         ];
         if ($postId) {
-            $formFields['post'] = (string)$postId;
+            $formFields['post'] = (string) $postId;
         }
         $formData = new FormDataPart($formFields);
 
@@ -128,7 +127,7 @@ class ApiClient
     }
 
     /**
-     * @throws  \Exception|\Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
+     * @throws \Exception|\Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
      */
     public function deletePost(int $postId): ?string
     {
@@ -138,7 +137,6 @@ class ApiClient
         $url = $this->url.'/posts/'.$postId;
 
         $response = $this->httpClient->request('DELETE', $url, [
-
         ]);
         /*   dump($response);
            dump($response->getInfo());
@@ -154,7 +152,8 @@ class ApiClient
     {
         try {
             $statusCode = $request->getStatusCode();
-            return $request->getContent($statusCode === Response::HTTP_OK);
+
+            return $request->getContent(Response::HTTP_OK === $statusCode);
         } catch (ClientExceptionInterface | TransportExceptionInterface | ServerExceptionInterface | RedirectionExceptionInterface $e) {
             throw  new \Exception($e->getMessage());
         }
