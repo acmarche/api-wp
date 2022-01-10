@@ -33,7 +33,7 @@ class ApiClient
      */
     public function getPostsByCategory(int $categoryId): ?string
     {
-        if ($this->httpClient === null) {
+        if (null === $this->httpClient) {
             $this->connect();
         }
         $args = ['categories' => $categoryId, 'per_page' => 50, 'orderby' => 'date', 'order' => 'desc'];
@@ -50,7 +50,7 @@ class ApiClient
      */
     public function getPost(int $postId): ?string
     {
-        if ($this->httpClient === null) {
+        if (null === $this->httpClient) {
             $this->connect();
         }
         $response = $this->httpClient->request('GET', $this->url.'/posts/'.$postId, [
@@ -64,7 +64,7 @@ class ApiClient
      */
     public function getCategories(array $include): ?string
     {
-        if ($this->httpClient === null) {
+        if (null === $this->httpClient) {
             $this->connect();
         }
         $response = $this->httpClient->request('GET', $this->url.'/categories', [
@@ -79,7 +79,7 @@ class ApiClient
      */
     public function createPost(array $data, ?int $postId = null): ?string
     {
-        if ($this->httpClient === null) {
+        if (null === $this->httpClient) {
             $this->connect();
         }
         $url = $this->url.'/posts';
@@ -99,7 +99,7 @@ class ApiClient
      */
     public function createMedia(string $fileName, string $type, string $data, ?int $postId = null): ?string
     {
-        if ($this->httpClient === null) {
+        if (null === $this->httpClient) {
             $this->connect();
         }
         $url = $this->url.'/media';
@@ -132,7 +132,7 @@ class ApiClient
      */
     public function deletePost(int $postId): ?string
     {
-        if ($this->httpClient === null) {
+        if (null === $this->httpClient) {
             $this->connect();
         }
         $url = $this->url.'/posts/'.$postId;
