@@ -36,7 +36,12 @@ class ApiClient
         if (null === $this->httpClient) {
             $this->connect();
         }
-        $args = ['categories' => $categoryId, 'per_page' => 50, 'orderby' => 'date', 'order' => 'desc'];
+        $args = [
+            'categories' => $categoryId,
+            'per_page' => 50,
+            'orderby' => 'date',
+            'order' => 'desc',
+        ];
         $response = $this->httpClient->request('GET', $this->url.'/posts', [
             'query' => $args,
         ]);
@@ -68,7 +73,9 @@ class ApiClient
             $this->connect();
         }
         $response = $this->httpClient->request('GET', $this->url.'/categories', [
-            'query' => ['include' => implode(',', $include)],
+            'query' => [
+                'include' => implode(',', $include),
+            ],
         ]);
 
         return $this->getContent($response);
