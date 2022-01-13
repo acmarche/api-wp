@@ -22,7 +22,7 @@ class ApiClient
 
     public function connect(): void
     {
-        $this->url = $_ENV['WP_SITE'].'/wp-json/wp/v2';
+        $this->url = $_ENV['WP_SITE'] . '/wp-json/wp/v2';
         $options = new HttpOptions();
         $options->setAuthBasic($_ENV['WP_USER'], $_ENV['WP_PASSWORD']);
         $this->httpClient = HttpClient::createForBaseUri($this->url, $options->toArray());
@@ -42,7 +42,7 @@ class ApiClient
             'orderby' => 'date',
             'order' => 'desc',
         ];
-        $response = $this->httpClient->request('GET', $this->url.'/posts', [
+        $response = $this->httpClient->request('GET', $this->url . '/posts', [
             'query' => $args,
         ]);
 
@@ -58,7 +58,7 @@ class ApiClient
         if (null === $this->httpClient) {
             $this->connect();
         }
-        $response = $this->httpClient->request('GET', $this->url.'/posts/'.$postId, [
+        $response = $this->httpClient->request('GET', $this->url . '/posts/' . $postId, [
         ]);
 
         return $this->getContent($response);
@@ -72,7 +72,7 @@ class ApiClient
         if (null === $this->httpClient) {
             $this->connect();
         }
-        $response = $this->httpClient->request('GET', $this->url.'/categories', [
+        $response = $this->httpClient->request('GET', $this->url . '/categories', [
             'query' => [
                 'include' => implode(',', $include),
             ],
@@ -89,9 +89,9 @@ class ApiClient
         if (null === $this->httpClient) {
             $this->connect();
         }
-        $url = $this->url.'/posts';
+        $url = $this->url . '/posts';
         if ($postId) {
-            $url .= '/'.$postId;
+            $url .= '/' . $postId;
         }
 
         $response = $this->httpClient->request('POST', $url, [
@@ -109,7 +109,7 @@ class ApiClient
         if (null === $this->httpClient) {
             $this->connect();
         }
-        $url = $this->url.'/media';
+        $url = $this->url . '/media';
         $dataPart = new DataPart($data, $fileName, $type);
 
         $formFields = [
@@ -118,7 +118,7 @@ class ApiClient
             'file' => $dataPart,
         ];
         if ($postId) {
-            $formFields['post'] = (string) $postId;
+            $formFields['post'] = (string)$postId;
         }
         $formData = new FormDataPart($formFields);
 
@@ -142,7 +142,7 @@ class ApiClient
         if (null === $this->httpClient) {
             $this->connect();
         }
-        $url = $this->url.'/posts/'.$postId;
+        $url = $this->url . '/posts/' . $postId;
 
         $response = $this->httpClient->request('DELETE', $url, [
         ]);
@@ -162,7 +162,7 @@ class ApiClient
             $statusCode = $request->getStatusCode();
 
             return $request->getContent(Response::HTTP_OK === $statusCode);
-        } catch (ClientExceptionInterface | TransportExceptionInterface | ServerExceptionInterface | RedirectionExceptionInterface $e) {
+        } catch (ClientExceptionInterface|TransportExceptionInterface|ServerExceptionInterface|RedirectionExceptionInterface $e) {
             throw  new Exception($e->getMessage(), $e->getCode(), $e);
         }
     }
