@@ -33,7 +33,7 @@ class ApiClient
      */
     public function getPostsByCategory(int $categoryId): ?string
     {
-        if (null === $this->httpClient) {
+        if (!$this->httpClient instanceof \Symfony\Contracts\HttpClient\HttpClientInterface) {
             $this->connect();
         }
         $args = [
@@ -55,7 +55,7 @@ class ApiClient
      */
     public function getPost(int $postId): ?string
     {
-        if (null === $this->httpClient) {
+        if (!$this->httpClient instanceof \Symfony\Contracts\HttpClient\HttpClientInterface) {
             $this->connect();
         }
         $response = $this->httpClient->request('GET', $this->url . '/posts/' . $postId, [
@@ -69,7 +69,7 @@ class ApiClient
      */
     public function getCategories(array $include): ?string
     {
-        if (null === $this->httpClient) {
+        if (!$this->httpClient instanceof \Symfony\Contracts\HttpClient\HttpClientInterface) {
             $this->connect();
         }
         $response = $this->httpClient->request('GET', $this->url . '/categories', [
@@ -86,7 +86,7 @@ class ApiClient
      */
     public function createPost(array $data, ?int $postId = null): ?string
     {
-        if (null === $this->httpClient) {
+        if (!$this->httpClient instanceof \Symfony\Contracts\HttpClient\HttpClientInterface) {
             $this->connect();
         }
         $url = $this->url . '/posts';
@@ -106,7 +106,7 @@ class ApiClient
      */
     public function createMedia(string $fileName, string $type, string $data, ?int $postId = null): ?string
     {
-        if (null === $this->httpClient) {
+        if (!$this->httpClient instanceof \Symfony\Contracts\HttpClient\HttpClientInterface) {
             $this->connect();
         }
         $url = $this->url . '/media';
@@ -139,7 +139,7 @@ class ApiClient
      */
     public function deletePost(int $postId): ?string
     {
-        if (null === $this->httpClient) {
+        if (!$this->httpClient instanceof \Symfony\Contracts\HttpClient\HttpClientInterface) {
             $this->connect();
         }
         $url = $this->url . '/posts/' . $postId;
