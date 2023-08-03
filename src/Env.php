@@ -12,9 +12,9 @@ class Env
         $dotenv = new Dotenv();
         $dir = getcwd();
         try {
-            $dotenv->bootEnv($dir.'/.env');
+            $dotenv->bootEnv($dir . '/.env');
         } catch (Exception $exception) {
-            echo 'Error load env: '.$exception->getMessage();
+            echo 'Error load env: ' . $exception->getMessage();
         }
     }
 }

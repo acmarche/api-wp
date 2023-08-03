@@ -33,7 +33,7 @@ class ApiClient
      */
     public function getPostsByCategory(int $categoryId): ?string
     {
-        if (!$this->httpClient instanceof \Symfony\Contracts\HttpClient\HttpClientInterface) {
+        if (!$this->httpClient instanceof HttpClientInterface) {
             $this->connect();
         }
         $args = [
@@ -55,7 +55,7 @@ class ApiClient
      */
     public function getPost(int $postId): ?string
     {
-        if (!$this->httpClient instanceof \Symfony\Contracts\HttpClient\HttpClientInterface) {
+        if (!$this->httpClient instanceof HttpClientInterface) {
             $this->connect();
         }
         $response = $this->httpClient->request('GET', $this->url . '/posts/' . $postId, [
@@ -69,7 +69,7 @@ class ApiClient
      */
     public function getCategories(array $include): ?string
     {
-        if (!$this->httpClient instanceof \Symfony\Contracts\HttpClient\HttpClientInterface) {
+        if (!$this->httpClient instanceof HttpClientInterface) {
             $this->connect();
         }
         $response = $this->httpClient->request('GET', $this->url . '/categories', [
@@ -86,7 +86,7 @@ class ApiClient
      */
     public function createPost(array $data, ?int $postId = null): ?string
     {
-        if (!$this->httpClient instanceof \Symfony\Contracts\HttpClient\HttpClientInterface) {
+        if (!$this->httpClient instanceof HttpClientInterface) {
             $this->connect();
         }
         $url = $this->url . '/posts';
@@ -106,7 +106,7 @@ class ApiClient
      */
     public function createMedia(string $fileName, string $type, string $data, ?int $postId = null): ?string
     {
-        if (!$this->httpClient instanceof \Symfony\Contracts\HttpClient\HttpClientInterface) {
+        if (!$this->httpClient instanceof HttpClientInterface) {
             $this->connect();
         }
         $url = $this->url . '/media';
@@ -139,7 +139,7 @@ class ApiClient
      */
     public function deletePost(int $postId): ?string
     {
-        if (!$this->httpClient instanceof \Symfony\Contracts\HttpClient\HttpClientInterface) {
+        if (!$this->httpClient instanceof HttpClientInterface) {
             $this->connect();
         }
         $url = $this->url . '/posts/' . $postId;
@@ -163,7 +163,7 @@ class ApiClient
 
             return $request->getContent(Response::HTTP_OK === $statusCode);
         } catch (ClientExceptionInterface|TransportExceptionInterface|ServerExceptionInterface|RedirectionExceptionInterface $e) {
-            throw  new Exception($e->getMessage(), $e->getCode(), $e);
+            throw new Exception($e->getMessage(), $e->getCode(), $e);
         }
     }
 }
