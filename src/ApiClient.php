@@ -115,13 +115,13 @@ class ApiClient
     /**
      * @throws Exception|TransportExceptionInterface
      */
-    public function createMedia(string $fileName, string $type, string $data, ?int $postId = null): ?string
+    public function createMedia(string $fileName, string $type, string $content, ?int $postId = null): ?string
     {
         if (!$this->httpClient instanceof HttpClientInterface) {
             $this->connect();
         }
         $url = $this->url.'/media';
-        $dataPart = new DataPart($data, $fileName, $type);
+        $dataPart = new DataPart($content, $fileName, $type);
 
         $formFields = [
             // 'title' => 'some value2',
