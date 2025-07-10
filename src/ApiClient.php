@@ -3,6 +3,7 @@
 namespace AcMarche\ApiWp;
 
 use Exception;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpClient\HttpOptions;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,11 +21,21 @@ class ApiClient
     private ?HttpClientInterface $httpClient = null;
     private string $url;
 
+    public function __construct(
+        #[Autowire('%env(WP_SITE)%')]
+        private readonly string $wpSite,
+        #[Autowire('%env(WP_USER)%')]
+        private readonly string $wpUser,
+        #[Autowire('%env(WP_PASSWORD)%')]
+        private readonly string $wpPassword,
+    ) {
+    }
+
     public function connect(): void
     {
-        $this->url = $_ENV['WP_SITE'] . '/wp-json/wp/v2';
+        $this->url = $this->wpSite.'/wp-json/wp/v2';
         $options = new HttpOptions();
-        $options->setAuthBasic($_ENV['WP_USER'], $_ENV['WP_PASSWORD']);
+        $options->setAuthBasic($this->wpUser, $this->wpPassword);
         $this->httpClient = HttpClient::createForBaseUri($this->url, $options->toArray());
     }
 
@@ -42,7 +53,7 @@ class ApiClient
             'orderby' => 'date',
             'order' => 'desc',
         ];
-        $response = $this->httpClient->request('GET', $this->url . '/posts', [
+        $response = $this->httpClient->request('GET', $this->url.'/posts', [
             'query' => $args,
         ]);
 
@@ -58,7 +69,7 @@ class ApiClient
         if (!$this->httpClient instanceof HttpClientInterface) {
             $this->connect();
         }
-        $response = $this->httpClient->request('GET', $this->url . '/posts/' . $postId, [
+        $response = $this->httpClient->request('GET', $this->url.'/posts/'.$postId, [
         ]);
 
         return $this->getContent($response);
@@ -72,7 +83,7 @@ class ApiClient
         if (!$this->httpClient instanceof HttpClientInterface) {
             $this->connect();
         }
-        $response = $this->httpClient->request('GET', $this->url . '/categories', [
+        $response = $this->httpClient->request('GET', $this->url.'/categories', [
             'query' => [
                 'include' => implode(',', $include),
             ],
@@ -89,9 +100,9 @@ class ApiClient
         if (!$this->httpClient instanceof HttpClientInterface) {
             $this->connect();
         }
-        $url = $this->url . '/posts';
+        $url = $this->url.'/posts';
         if ($postId) {
-            $url .= '/' . $postId;
+            $url .= '/'.$postId;
         }
 
         $response = $this->httpClient->request('POST', $url, [
@@ -109,7 +120,7 @@ class ApiClient
         if (!$this->httpClient instanceof HttpClientInterface) {
             $this->connect();
         }
-        $url = $this->url . '/media';
+        $url = $this->url.'/media';
         $dataPart = new DataPart($data, $fileName, $type);
 
         $formFields = [
@@ -142,10 +153,11 @@ class ApiClient
         if (!$this->httpClient instanceof HttpClientInterface) {
             $this->connect();
         }
-        $url = $this->url . '/posts/' . $postId;
+        $url = $this->url.'/posts/'.$postId;
 
         $response = $this->httpClient->request('DELETE', $url, [
         ]);
+
         /*   dump($response);
            dump($response->getInfo());
            dump($response->getContent(false));*/
